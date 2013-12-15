@@ -1,0 +1,82 @@
+<html><head>
+		<title>pong.js</title>
+		<style>
+			canvas { width: 98%; height: 98% }
+			body { background-color: #000;}
+		</style>
+	<style id="esmst">.ab_tnav_wrp{padding-left:112px}#esp_logo{width:112px}#hdtb_msb,#hdtb-mn-gp{padding-left:96px}.klcar,#lxhdr{margin-left:120px}#rcnt,.ucm{margin-left:112px}</style></head>
+	<body>
+		<script src="http://threejs.org/build/three.min.js"></script> <!-- THREE.js -->
+		<script src="http://learningthreejs.com/data/THREEx/THREEx.KeyboardState.js"></script> <!-- THREE.js keyboard -->
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script> <!-- JQuery -->
+		<script>
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize(window.innerWidth - 10, window.innerHeight - 10);
+			document.body.appendChild(renderer.domElement);
+
+			var paddleGeometry = new THREE.CubeGeometry(0.5,2,0.5);
+			var ballGeometry = new THREE.SphereGeometry(0.4, 0.4, 0.4);
+			var leftMaterial = new THREE.MeshBasicMaterial({color: 0xffff00});
+			var rightMaterial = new THREE.MeshBasicMaterial({color: 0x00ffff});
+			var ballMaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
+
+			var leftPaddle = new THREE.Mesh(paddleGeometry, leftMaterial);
+			scene.add(leftPaddle);
+
+			var rightPaddle = new THREE.Mesh(paddleGeometry, rightMaterial);
+			scene.add(rightPaddle);
+
+			var ball = new THREE.Mesh(ballGeometry, ballMaterial);
+			scene.add(ball);
+
+			leftPaddle.position = {"x": -4, "y": 0, "z": 0};
+			rightPaddle.position = {"x": 4, "y": 0, "z": 0};
+
+			var keyboard = new THREEx.KeyboardState();
+			var moveCount = 0;
+			var keyPress = false;
+
+			camera.position.z = 5;
+
+			function ajaxCall(moveCount, yCoord, rightPaddle){
+				if (moveCount % 6 == 0) {
+					$.ajax({ 
+						type:"POST",
+			    		data: {
+			    		 	"yCoord": yCoord
+			    		},
+			    		url:"server.js", success:function(result){
+			    			rightPaddle.position.y = parseFloat(result);
+			    		}
+			    	});
+				}
+			}
+
+			var render = function () {
+				requestAnimationFrame(render);
+
+				ball.rotation.y += 0.1;
+				if (keyboard.pressed("up")){
+					leftPaddle.position.y+=0.1;
+				}
+				if (keyboard.pressed("down")){
+					leftPaddle.position.y-=0.1;
+				}
+
+				moveCount++;
+				ajaxCall(moveCount, leftPaddle.position.y, rightPaddle);
+
+				renderer.render(scene, camera);
+			};
+
+			render();
+
+
+
+		</script>
+	
+
+</body></html>
