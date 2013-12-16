@@ -8,8 +8,14 @@
 	<body>
 		<script src="http://threejs.org/build/three.min.js"></script> <!-- THREE.js -->
 		<script src="http://learningthreejs.com/data/THREEx/THREEx.KeyboardState.js"></script> <!-- THREE.js keyboard -->
-		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script> <!-- JQuery -->
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script> <!-- Socket.io -->
 		<script>
+
+
+
+
+			var initializing = THREE.Scene(); // empty scene
+
 			var scene = new THREE.Scene();
 			var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 
@@ -57,23 +63,57 @@
 
 			camera.position.z = 5;
 
-			function ajaxCall(moveCount, leftPaddle, rightPaddle){
-				if (moveCount % 10 == 0) {
-					$.ajax({ 
-						type:"POST",
-			    		data: {
-			    		 	"yCoord": leftPaddle.position.y
-			    		},
-			    		url:"server.js", success:function(result){
-			    			rightPaddle.position.y = parseFloat(result);
-			    		}
-			    	});
-				}
+
+
+			var ballX = 0;
+			var ballY = 0;
+
+			var gameId = -1;
+			var game;
+			var player = 0;
+			var myPaddle;
+
+			var ready = false;
+
+
+			var socket = io.connect('http://localhost/');
+
+			function startGame(){
+				ballX = -0.03;
+				ballY = 0.01;
 			}
 
-			var ballX = -0.03;
-			var ballY = 0.01;
 
+  			socket.on('ballPacket', function (ballData){
+  					ball.position.x = ballData.x;
+  					ball.position.y = ballData.y;
+  					ballX = ballData.i;
+  					ballY = ballData.j;
+  					//socket.emit('paddlePacket', )
+  			})
+
+  			socket.on('init', function (gameData){
+  				gameId = gameData.id;
+  				game = gameData.game;
+  				player = gameData.player
+  				console.log(gameData);
+  				if (player == 1){
+  					myPaddle = leftPaddle;
+  				} else {
+  					myPaddle = rightPaddle;
+  					ready = true;
+  				}
+  			})
+
+  			socket.on('player2Join', function (update){
+  				if (update.id == gameId){
+  					game = update.game;
+  					console.log(game);
+  					ready = true;
+  				}
+  			})
+
+			// THREE event loop
 			var render = function () {
 				requestAnimationFrame(render);
 
@@ -84,14 +124,11 @@
 
 
 				// check for collisions
-				var collision = false;
 				// the ball will potentially colide if it's X coord is
 				// +-5 - paddle width - ball width (+-5 - 0.25 - 0.2)
 				if (ball.position.x >= 4.55){
 					// potential collision with right paddle
 					// abs(ball.y - right.y) needs to be less than 1
-					console.log(ball.position.y)
-					console.log(leftPaddle.position.y)
 					if (Math.abs(ball.position.y - rightPaddle.position.y) <= 1){
 						ballX *= -1
 					}
@@ -104,6 +141,8 @@
 				}
 				// lower than floor : ballY >= (5 - half ball height - half the cieling/floor height)
 				if (ball.position.y <= (5 - 0.2 - 1.75)){
+
+
 					ballY *= -1
 				}if (ball.position.y >= -(5 - 0.2 - 1.75)){
 					ballY *= -1
@@ -111,19 +150,28 @@
 
 				// handle keybaord events
 				if (keyboard.pressed("up")){
-					leftPaddle.position.y+=0.1;
+					if ((myPaddle.position.y <= 2.25)){
+						myPaddle.position.y+=0.1;
+					}
 				}
 				if (keyboard.pressed("down")){
-					leftPaddle.position.y-=0.1;
+					if ((myPaddle.position.y >= -2.25)){
+						myPaddle.position.y-=0.1;
+					}
 				}
 
 				moveCount++;
-				ajaxCall(moveCount, leftPaddle, rightPaddle);
 
-				renderer.render(scene, camera);
+
+				if (gameId != -1){
+					renderer.render(scene, camera);
+				} // else show some sort of loading screen
 			};
 
 			render();
+
+
+
 
 
 
