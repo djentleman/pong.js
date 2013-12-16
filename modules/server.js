@@ -5,6 +5,7 @@ var url = require("url");
 var fs = require("fs");
 
 var io = require("socket.io");
+require("socket.io-client");
 
 var gpd = require("./getPost");
 var ip = require("./getip");
@@ -154,6 +155,8 @@ function start(){
 
     httpServer = http.createServer(onRequest, ipv4).listen(1234); // port it's listening on
     socket = io.listen(httpServer, { log: false });
+
+    socket.set('origins', "*:*");
 
     console.log("The Sevrer Has Started");
     console.log("Running on " + ipv4  + ":1234")
