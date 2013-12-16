@@ -10,6 +10,7 @@ function getIPv4(callback){
             var currentAddr = ifaces[iface][addr];
             if (currentAddr.family == "IPv4"){
                 callback(currentAddr.address);
+                return;
             }
         }
     }
