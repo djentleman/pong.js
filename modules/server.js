@@ -5,7 +5,7 @@ var url = require("url");
 var fs = require("fs");
 
 var gpd = require("./getPost");
-
+var ip = require("./getip");
 
 var htmlStr;
 
@@ -96,9 +96,16 @@ function start(){
         }
     }
 
-    http.createServer(onRequest, "192.168.0.9").listen(1234); // port it's listening on
+    var ipv4
+    ip.getIPv4(function(ip){
+        ipv4 = ip;
+    })
 
-    //console.log("The Sevrer Has Started");
+
+    http.createServer(onRequest, ipv4).listen(1234); // port it's listening on
+
+    console.log("The Sevrer Has Started");
+    console.log("Running on " + ipv4  + ":1234")
 }
 
 exports.start = start;
