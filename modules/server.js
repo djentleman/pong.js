@@ -11,7 +11,7 @@ var htmlStr;
 
 
 
-fs.readFile("./files/test.html", 'utf8', function (err, data) {
+fs.readFile("./files/pong.html", 'utf8', function (err, data) {
                  if (err) throw err;
                  htmlStr = data;
             })
