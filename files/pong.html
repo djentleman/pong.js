@@ -19,10 +19,12 @@
 
 			var paddleGeometry = new THREE.CubeGeometry(0.5,2,0.5);
 			var ballGeometry = new THREE.SphereGeometry(0.4, 0.4, 0.4);
+			var ceilFloorGeometry = new THREE.CubeGeometry(20, 3.5, 2);
 
 			var leftMaterial = new THREE.MeshBasicMaterial({color: 0xffff00});
 			var rightMaterial = new THREE.MeshBasicMaterial({color: 0x00ffff});
 			var ballMaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
+			var ceilFloorMaterial = new THREE.MeshBasicMaterial({color: 0xffffff})
 
 			var leftPaddle = new THREE.Mesh(paddleGeometry, leftMaterial);
 			scene.add(leftPaddle);
@@ -32,6 +34,19 @@
 
 			var ball = new THREE.Mesh(ballGeometry, ballMaterial);
 			scene.add(ball);
+
+			var ceiling = new THREE.Mesh(ceilFloorGeometry, ceilFloorMaterial);
+			scene.add(ceiling);
+
+			var floor = new THREE.Mesh(ceilFloorGeometry, ceilFloorMaterial);
+			scene.add(floor);
+
+     		var ambientLight = new THREE.AmbientLight(0x00ff00); // add lighting
+     		scene.add(ambientLight);
+
+
+			ceiling.position.y = -5;
+			floor.position.y = 5;
 
 			leftPaddle.position = {"x": -5, "y": 0, "z": 0};
 			rightPaddle.position = {"x": 5, "y": 0, "z": 0};
@@ -69,6 +84,7 @@
 
 
 				// check for collisions
+				var collision = false;
 				// the ball will potentially colide if it's X coord is
 				// +-5 - paddle width - ball width (+-5 - 0.25 - 0.2)
 				if (ball.position.x >= 4.55){
@@ -85,6 +101,12 @@
 					if (Math.abs(ball.position.y - leftPaddle.position.y) <= 1){
 						ballX *= -1
 					}
+				}
+				// lower than floor : ballY >= (5 - half ball height - half the cieling/floor height)
+				if (ball.position.y <= (5 - 0.2 - 1.75)){
+					ballY *= -1
+				}if (ball.position.y >= -(5 - 0.2 - 1.75)){
+					ballY *= -1
 				}
 
 				// handle keybaord events
