@@ -43,7 +43,6 @@ function start(){
                 var myGame;
                 var myPlayer;
                 var gameFound = false;
-                console.log(games);
                 for(var i=0; i<games.length; i++ ){
                     if (games[i].p1.ip == request.connection.remoteAddress){
                         console.log("user already in game as player " + 1);
@@ -86,15 +85,21 @@ function start(){
                 }
 
 
+                console.log(games);
 
-                socket.sockets.on('connection', function (socket) {
+
+
+                socket.sockets.on('connection', function (socket) { // a sort of state machine needs to exist here
                     socket.emit('init', {"id": myGame, "game": games[myGame], "player": myPlayer}); // initialze the game
-                    if (myPlayer == 2){
-                        // contact player 1 of the game
-                        socket.emit('player2Join', {"id": myGame, "game": games[myGame]})
-                    }
+                    var updated = false;
                     setInterval(function(){
                         socket.emit('ballPacket', games[myGame].ball);
+                        if (games[myGame].p2 != undefined && !updated){
+                            // contact player 1 of the game
+                            socket.emit('player2Join', {"id": myGame, "game": games[myGame]})
+                            console.log("emiiting player 2 join...")
+                            updated = true;
+                        }
                     }, 50);
                 });
                 //console.log(request.connection.remoteAddress);

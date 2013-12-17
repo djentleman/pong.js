@@ -89,6 +89,7 @@
   					ball.position.y = ballData.y;
   					ballX = ballData.i;
   					ballY = ballData.j;
+  					console.log("ball packet recived");
   					//socket.emit('paddlePacket', )
   			})
 
@@ -106,6 +107,7 @@
   			})
 
   			socket.on('player2Join', function (update){
+  				console.log("Player 2 has joined the server");
   				if (update.id == gameId){
   					game = update.game;
   					console.log(game);
