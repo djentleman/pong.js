@@ -6,6 +6,11 @@
 		</style>
 	<style id="esmst">.ab_tnav_wrp{padding-left:112px}#esp_logo{width:112px}#hdtb_msb,#hdtb-mn-gp{padding-left:96px}.klcar,#lxhdr{margin-left:120px}#rcnt,.ucm{margin-left:112px}</style></head>
 	<body>
+	<p id="score1" style="text-align:left;color:white;">
+	This text is left aligned
+	</p>
+	<span id="score2" style="float:right;color:white;">This text is right aligned</span>
+	
 		<script src="http://threejs.org/build/three.min.js"></script> <!-- THREE.js -->
 		<script src="http://learningthreejs.com/data/THREEx/THREEx.KeyboardState.js"></script> <!-- THREE.js keyboard -->
 		<script src="http://148.197.158.119:1234/socket.io/socket.io.js"></script> <!-- Socket.io -->
@@ -98,6 +103,10 @@
   					} else if (player == 2) {
   					leftPaddle.position.y = gameData.p1.paddle;
   					}
+					document.getElementById("score1").innerHTML=gameData.p1.score;
+					document.getElementById("score2").innerHTML=gameData.p2.score;
+					document.getElementById("score1").style.color="white";
+					document.getElementById("score2").style.color="white";
   					console.log("ball packet recived");
   			});
 

@@ -145,12 +145,22 @@ function start(){
                 if (Math.abs(games[myGame].ball.y - games[myGame].p2.paddle) <= 1){
                     games[myGame].ball.i *= -1
                 }
+				else{
+					games[myGame].ball.x = 0;
+					games[myGame].ball.y = 0;
+					games[myGame].p1.score = games[myGame].p1.score + 1; 
+				}
             } else if (games[myGame].ball.x <= -4.55){
                 // potential collision with left paddle
                 // abs(ball.y - left.y) needs to be less than 1
                 if (Math.abs(games[myGame].ball.y - games[myGame].p1.paddle) <= 1){
                     games[myGame].ball.i *= -1
                 }
+				else{
+					games[myGame].ball.x = 0;
+					games[myGame].ball.y = 0;
+					games[myGame].p2.score = games[myGame].p2.score + 1; 
+				}
             }
             // lower than floor : ballY >= (5 - half ball height - half the cieling/floor height)
             if (games[myGame].ball.y <= (5 - 0.2 - 1.75)){
