@@ -121,6 +121,15 @@ function start(){
                 games[myGame].p2.paddle = data;
             }
         })
+
+        function score(p){
+            games[myGame].ball.x = 0;
+            games[myGame].ball.y = 0;
+            games[myGame].ball.j = (Math.random() * 0.04) -0.02;
+            games[myGame].ball.i = (Math.random() * 0.1) -0.05;
+            p.score = p.score + 1; 
+        }
+
         setInterval(function(){
             socket.emit('ballPacket', games[myGame]);
             if (games[myGame].p2 != undefined && !updated){
@@ -139,32 +148,28 @@ function start(){
             // check for collisions
             // the ball will potentially colide if it's X coord is
             // +-5 - paddle width - ball width (+-5 - 0.25 - 0.2)
-            if (games[myGame].ball.x >= 4.55){
+            
+             if (games[myGame].ball.x >= 6){
+                score(games[myGame].p1);
+             }
+
+             if (games[myGame].ball.x <= -6){
+                score(games[myGame].p2);
+             }
+            if (games[myGame].ball.x >= 4.55  && games[myGame].ball.x <= 4.65){
                 // potential collision with right paddle
                 // abs(ball.y - right.y) needs to be less than 1
-                if (Math.abs(games[myGame].ball.y - games[myGame].p2.paddle) <= 1){
+                if (Math.abs(games[myGame].ball.y - games[myGame].p2.paddle) <= 1.2){
                     games[myGame].ball.i *= -1
                 }
-				else{
-					games[myGame].ball.x = 0;
-					games[myGame].ball.y = 0;
-					games[myGame].ball.j = (Math.random() * 0.05);
-					games[myGame].ball.i = 0.05 - games[myGame].ball.j;
-					games[myGame].p1.score = games[myGame].p1.score + 1; 
-				}
-            } else if (games[myGame].ball.x <= -4.55){
+				
+            } else if (games[myGame].ball.x <= -4.55 && games[myGame].ball.x >= -4.65){
                 // potential collision with left paddle
                 // abs(ball.y - left.y) needs to be less than 1
-                if (Math.abs(games[myGame].ball.y - games[myGame].p1.paddle) <= 1){
+                if (Math.abs(games[myGame].ball.y - games[myGame].p1.paddle) <= 1.2){
                     games[myGame].ball.i *= -1
                 }
-				else{
-					games[myGame].ball.x = 0;
-					games[myGame].ball.y = 0;
-					games[myGame].ball.j = (Math.random() * 0.05);
-					games[myGame].ball.i = 0.05 - games[myGame].ball.j;
-					games[myGame].p2.score = games[myGame].p2.score + 1; 
-				}
+				
             }
             // lower than floor : ballY >= (5 - half ball height - half the cieling/floor height)
             if (games[myGame].ball.y <= (5 - 0.2 - 1.75)){
