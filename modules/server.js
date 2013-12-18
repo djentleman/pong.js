@@ -25,7 +25,7 @@ function start(){
     //console.log("games json initialized");
     function onRequest(request, response) {
         if (url.parse(request.url).pathname != "/favicon.ico"){ 
-            response.writeHead(200, {"Content-Type": "text/html"});
+            response.writeHead(200, {"Content-Type": "text/html"}); //http 200 = ok
             response.write(htmlStr);
             response.end();
 
@@ -111,7 +111,7 @@ function start(){
 
         socket.on('startGame', function (gameId){
             games[gameId].ball.i = 0.01;
-            games[gameId].ball.j = 0.005;
+            games[gameId].ball.j = 0.01;
         })
 
         socket.on('paddlePacket', function (data){
@@ -126,7 +126,7 @@ function start(){
             if (games[myGame].p2 != undefined && !updated){
                 // contact player 1 of the game
                 socket.emit('player2Join', {"id": myGame, "game": games[myGame]})
-                console.log("emiiting player 2 join...")
+                console.log("emitting player 2 join...")
                 updated = true;
             }
 
@@ -148,6 +148,8 @@ function start(){
 				else{
 					games[myGame].ball.x = 0;
 					games[myGame].ball.y = 0;
+					games[myGame].ball.j = (Math.random() * 0.05);
+					games[myGame].ball.i = 0.05 - games[myGame].ball.j;
 					games[myGame].p1.score = games[myGame].p1.score + 1; 
 				}
             } else if (games[myGame].ball.x <= -4.55){
@@ -159,6 +161,8 @@ function start(){
 				else{
 					games[myGame].ball.x = 0;
 					games[myGame].ball.y = 0;
+					games[myGame].ball.j = (Math.random() * 0.05);
+					games[myGame].ball.i = 0.05 - games[myGame].ball.j;
 					games[myGame].p2.score = games[myGame].p2.score + 1; 
 				}
             }
