@@ -6,16 +6,15 @@
 		</style>
 	<style id="esmst">.ab_tnav_wrp{padding-left:112px}#esp_logo{width:112px}#hdtb_msb,#hdtb-mn-gp{padding-left:96px}.klcar,#lxhdr{margin-left:120px}#rcnt,.ucm{margin-left:112px}</style></head>
 	<body>
-	<p id="score1" style="text-align:left;color:white;">
-	This text is left aligned
-	</p>
-	<span id="score2" style="float:right;color:white;">This text is right aligned</span>
 	
-		<script src="http://threejs.org/build/three.min.js"></script> <!-- THREE.js -->
+		<script src="http://threejs.org/build/three.js"></script> <!-- THREE.js -->
 		<script src="http://learningthreejs.com/data/THREEx/THREEx.KeyboardState.js"></script> <!-- THREE.js keyboard -->
-		<script src="http://148.197.158.119:1234/socket.io/socket.io.js"></script> <!-- Socket.io -->
+		<script src="http://192.168.0.3:1234/socket.io/socket.io.js"></script> <!-- Socket.io -->
 		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+		<script src="http://mrdoob.github.com/three.js/examples/fonts/helvetiker_regular.typeface.js"></script>
 		<script>
+
+
 
 
 
@@ -23,6 +22,17 @@
 			//$.getJSON("http://smart-ip.net/geoip-json?callback=?", function(data){
    			//	alert(data.host);
 			//});
+
+
+
+			function buildTextGeometry(text){
+				return new THREE.TextGeometry( text, {
+					size: 0.5,
+					height: 0.05,
+            		bevelEnabled: false,
+            		font: "helvetiker"
+				})
+			}
 
 
 			var initializing = THREE.Scene(); // empty scene
@@ -41,7 +51,8 @@
 			var leftMaterial = new THREE.MeshBasicMaterial({color: 0x00ff00});
 			var rightMaterial = new THREE.MeshBasicMaterial({color: 0x00ff00});
 			var ballMaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
-			var ceilFloorMaterial = new THREE.MeshBasicMaterial({color: 0xffffff})
+			var ceilFloorMaterial = new THREE.MeshBasicMaterial({color: 0xffffff});
+			var scoreMaterial = new THREE.MeshBasicMaterial({color: 0x11ff00});
 
 			var leftPaddle = new THREE.Mesh(paddleGeometry, leftMaterial);
 			scene.add(leftPaddle);
@@ -57,6 +68,18 @@
 
 			var floor = new THREE.Mesh(ceilFloorGeometry, ceilFloorMaterial);
 			scene.add(floor);
+
+			var score1 = new THREE.Mesh(buildTextGeometry("0"), scoreMaterial);
+			scene.add(score1);
+			score1.position.x = -5;
+			score1.position.y = -3;
+			score1.position.z = -1;
+
+			var score2 = new THREE.Mesh(buildTextGeometry("0"), scoreMaterial);
+			scene.add(score2);
+			score2.position.x = 5;
+			score2.position.y = -3;
+			score2.position.z = -1;
 
      		var ambientLight = new THREE.AmbientLight(0x00ff00); // add lighting
      		scene.add(ambientLight);
@@ -82,12 +105,14 @@
 			var gameId = -1;
 			var game = {};
 			var player = 0;
-			myPaddle = {};
+			var myPaddle = {};
+
+			var scores = {"p1": 0, "p2": 0}
 
 			var ready = false;
 
 
-			var socket = io.connect('http://148.197.158.119:1234/');
+			var socket = io.connect('http://192.168.0.3:1234/');
 
 			function startGame(){
 				socket.emit('startGame', gameId);
@@ -103,11 +128,25 @@
   					} else if (player == 2) {
   					leftPaddle.position.y = gameData.p1.paddle;
   					}
-					document.getElementById("score1").innerHTML=gameData.p1.score;
-					document.getElementById("score2").innerHTML=gameData.p2.score;
-					document.getElementById("score1").style.color="white";
-					document.getElementById("score2").style.color="white";
   					console.log("ball packet recived");
+  					console.log(gameData.p1.score);
+  					console.log(gameData.p2.score);
+  					if (scores.p1 != gameData.p1.score || scores.p2 != gameData.p2.score){
+  						if (score1){
+  							scene.remove(score1);
+  						}
+  						if (score2){
+  							scene.remove(score2);
+  						}
+  						score1 = new THREE.Mesh(buildTextGeometry((gameData.p1.score).toString()), scoreMaterial);
+  						score1.position = {"x": -5, "y": -3, "z": -1};
+  						scene.add(score1);
+  						score2 = new THREE.Mesh(buildTextGeometry((gameData.p2.score).toString()), scoreMaterial);
+  						score2.position = {"x": 5, "y": -3, "z": -1};
+  						scene.add(score2);
+  						scores.p1 = gameData.p1.score;
+  						scores.p2 = gameData.p2.score;
+  					}
   			});
 
 
@@ -149,6 +188,8 @@
 
 
 
+
+
 				// handle keybaord events
 				if (keyboard.pressed("up")){
 					if ((myPaddle.position.y <= 2.25)){
@@ -172,6 +213,7 @@
 					renderer.render(scene, camera);
 				} // else show some sort of loading screen
 			};
+
 
 			render();
 
